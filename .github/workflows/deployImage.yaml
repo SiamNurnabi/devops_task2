@@ -1,0 +1,17 @@
+name: Deploy docker image
+on: [workflow_dispatch]
+jobs:
+  deployImage:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Deploy to VMs
+        run: ansible-playbook -i inventory.ini deploy-playbook.yaml -e "docker_image=${{secrets.DOCKERHUB_USERNAME}}/devops-task"

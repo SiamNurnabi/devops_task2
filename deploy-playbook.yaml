@@ -1,0 +1,27 @@
+---
+- name: Pull the docker image
+  hosts: app
+  become: true
+  tasks:
+    - name: Pull and run docker container
+      shell: |
+        docker pull {{ docker_image }}:{{ docker_tag | default('latest') }}
+        docker stop {{ container_name }} || true
+        docker rm {{ container_name }} || true
+        docker run -e HOST_HOSTNAME=$(hostname) -d -p {{ host_port }}:{{ container_port }} --name {{ container_name }} {{ docker_image }}:{{ docker_tag | default('latest') }}
+      args:
+        executable: /bin/bash
+      vars:
+        docker_image: devops-task
+        container_name: cicd-tasks
+        host_port: 8085
+        container_port: 8080
+
+
+
+#    - name: Render deploy.yaml from template
+#      ansible.builtin.template:
+#        src: deploy.yaml.j2
+#        dest: rendered-deploy.yaml
+#    - name: Execute the rendered playbook
+#      ansible.builtin.include_tasks: rendered-deploy.yaml
